@@ -90,4 +90,8 @@ function quoteInsurance( e ) {
     
     ui.showMesaje('Quoting...', 'exito')
 
+    // Sure instance
+
+    // Use the prototype that will be quoted
+
 }
