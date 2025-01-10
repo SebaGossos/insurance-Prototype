@@ -5,8 +5,45 @@ function Sure( brand, year, type ) {
     this.year = year;
     this.type= type;
 }
+// make the quote with the data
+Sure.prototype.sureQuote = function() {
+    // 1 = American 1.10
+    // 2 = Asiatico 1.05
+    // 2 = Europeao 1.30
+
+    let amount;
+    const base = 2000;
+
+    switch( this.brand ) {
+
+        case '1':
+            amount = base * 1.15
+            break;
+        case '2':
+            amount = base * 1.05  
+            break;
+        case '3':
+            amount = base * 1.35  
+            break;
+
+        default:
+            break;
+    }
+
+    // read year
+    const diference = new Date().getFullYear() - this.year;
+    
+    // Every year the difference is greater, the cost will be reduced by 3%
+    amount -= ( (diference * 3) * amount ) / 100;
+
+    if( this.type === 'basico') {
+        return amount *= 1.3;
+    }
+    return amount *= 1.5;
+}
 
 function UI() {}
+
 
 // fill the options of the years
 UI.prototype.fillOptions = () => {
@@ -53,17 +90,58 @@ UI.prototype.showMesaje = ( message, type='' ) => {
     },3000)
 }
 
+UI.prototype.showResult = ( sure, total ) => {
 
+    const { brand, year, type } = sure;
 
+    let brandText;
 
+    switch( brand ) {
+
+        case '1':
+            brandText = 'Americano';
+            break
+        case '2':
+            brandText = 'Asiatico';
+            break
+        case '3':
+            brandText = 'Europeo';
+            break
+        
+        default:
+            break;
+    }
+
+    // create result
+    const div = document.createElement('div');
+    div.classList.add('mt-10')
+
+    div.innerHTML = `
+        <p class="header">Tu resumen</p>
+        <p class="font-bold">Marca: <span class="font-normal">${ brandText }</span></p>
+        <p class="font-bold">Año: <span class="font-normal">${ year }</span></p>
+        <p class="font-bold">Tipo: <span class="font-normal capitalize">${ type }</span></p>
+        <p class="font-bold">Total: <span class="font-normal">$ ${ total }</span></p>
+    `;
+
+    const divResult = document.querySelector('#resultado');
+    
+    // Show Spiner
+    const spinner = document.querySelector('#cargando');
+    spinner.style.display = 'block'
+    setTimeout(() => {
+        spinner.style.display = 'none' // disapear spinner
+        divResult.appendChild( div ); // showed result
+    }, 3000)
+}
 
 // instance UI
 const ui = new UI();
 
-
 document.addEventListener('DOMContentLoaded', () => {
     ui.fillOptions(); // fill select with years...
 })
+
 
 eventListener()
 function eventListener() {
@@ -90,8 +168,16 @@ function quoteInsurance( e ) {
     
     ui.showMesaje('Quoting...', 'exito')
 
+    const divResult = document.querySelector('#resultado div');
+
+    if( divResult !== null ) {
+        divResult.remove();
+    }
+
     // Sure instance
-
+    const sure = new Sure(brand, year, type);
+    const total = Math.round(sure.sureQuote());
+    
     // Use the prototype that will be quoted
-
+    ui.showResult( sure, total )
 }
